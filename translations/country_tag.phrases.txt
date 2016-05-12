@@ -1,0 +1,62 @@
+﻿"Phrases"
+{
+       "SPECTATOR_SAY"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}(Spectator) [[{green}{1}{default}]{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}(Наблюдатель) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "SPECTATOR_SAY_TEAM"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}(Spectator) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}(Наблюдатель) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "DEAD"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}*DEAD* [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}*УБИТ* [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "DEAD_TEAM_CT"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}*DEAD*(Counter-Terrorist) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}*УБИТ*(Спецназовец) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "TEAM_CT"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}(Counter-Terrorist) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}(Спецназовец) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "DEAD_TEAM_T"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}*DEAD*(Terrorist) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}*УБИТ*(Террорист) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "TEAM_T"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "{default}(Terrorist) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "{default}(Террорист) [{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "MUTE"
+       {
+             "en"         "You disabled chat."
+             "ru"         "Вам отключен чат."
+       }
+       "ALIVE_CHAT"
+       {
+	         "#format"		"{1:s},{2:N},{3:s}"
+             "en"         "[{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+             "ru"         "[{green}{1}{default}] {teamcolor}{2} {default}:  {3}"
+       }
+       "CLAN_TAG"
+       {
+	         "#format"		"{1:s}"
+             "en"         "[{1}]"
+             "ru"         "[{1}]"
+       }
+}
