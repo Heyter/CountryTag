@@ -5,7 +5,7 @@
 #include <cstrike>
 #include <autoexecconfig>
 #pragma newdecls required
-#define PL_VERSION "1.10"
+#define PL_VERSION "1.11"
 
 float g_fLastChatMsg[MAXPLAYERS + 1];
 
@@ -44,7 +44,7 @@ public void OnPluginStart()
 
 public Action ChatSay(int client, const char[] command, int args)
 {
-	if(GetConVarInt(g_hChatTag))
+	if (GetConVarInt(g_hChatTag))
 	{
 		if (IsValidClient(client))
 		{
@@ -54,7 +54,7 @@ public Action ChatSay(int client, const char[] command, int args)
 				return Plugin_Handled;
 			}
 			
-			char ip[14], tag[3], text[1024];
+			char ip[14], tag[3], text[512], textcolor[1024];
 			
 			text[0] = '\0';
 			int team = GetClientTeam(client);
@@ -92,13 +92,15 @@ public Action ChatSay(int client, const char[] command, int args)
 				return Plugin_Continue;
 			}
 			
+			FormatEx(textcolor, sizeof(textcolor), "%s", text);
+			
 			if (strcmp(command, "say") == 0)
 			{
-				if (team < 2) Format(text, sizeof(text), "%t", "SPECTATOR_SAY_TEAM", tag, client, text);
+				if (team < 2) FormatEx(text, sizeof(text), "%t", "SPECTATOR_SAY_TEAM", tag, client, textcolor);
 				else
 				{
-					if (alive) Format(text, sizeof(text), "%t", "ALIVE_CHAT", tag, client, text);
-					else Format(text, sizeof(text),"%t", "DEAD", tag, client, text);
+					if (alive) FormatEx(text, sizeof(text), "%t", "ALIVE_CHAT", tag, client, textcolor);
+					else FormatEx(text, sizeof(text), "%t", "DEAD", tag, client, textcolor);
 				}
 				CPrintToChatAllEx(client, "%s", text);
 				return Plugin_Handled;
@@ -108,16 +110,16 @@ public Action ChatSay(int client, const char[] command, int args)
 			{
 				switch(team)
 				{
-					case 1:Format(text, sizeof(text),"%t", "SPECTATOR_SAY", tag, client, text);
+					case 1:FormatEx(text, sizeof(text), "%t", "SPECTATOR_SAY", tag, client, textcolor);
 					case 2:
 					{
-						if (alive) Format(text, sizeof(text), "%t", "TEAM_T", tag, client, text);
-						else Format(text, sizeof(text), "%t", "DEAD_TEAM_T", tag, client, text);
+						if (alive) FormatEx(text, sizeof(text), "%t", "TEAM_T", tag, client, textcolor);
+						else FormatEx(text, sizeof(text), "%t", "DEAD_TEAM_T", tag, client, textcolor);
 					}
 					case 3:
 					{
-						if (alive) Format(text, sizeof(text), "%t", "TEAM_CT", tag, client, text);
-						else Format(text, sizeof(text), "%t", "%t", "DEAD_TEAM_CT", tag, client, text);
+						if (alive) FormatEx(text, sizeof(text), "%t", "TEAM_CT", tag, client, textcolor);
+						else FormatEx(text, sizeof(text), "%t", "DEAD_TEAM_CT", tag, client, textcolor);
 					}
 				}
 				
@@ -137,7 +139,7 @@ public Action ChatSay(int client, const char[] command, int args)
 
 public void PlySpawn(Event event, const char[] name, bool dontBroadcast)
 {
-	if(GetConVarInt(g_hClanTag))
+	if (GetConVarInt(g_hClanTag))
 	{
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		{
