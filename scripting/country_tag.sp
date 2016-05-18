@@ -3,25 +3,19 @@
 #include <geoip> 
 #include <basecomm>
 #include <cstrike>
-#include <autoexec>
+#include <autoexecconfig>
 #pragma newdecls required
-
-#define CVARS FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY
-#define DEFAULT_FLAGS FCVAR_PLUGIN|FCVAR_NOTIFY
-#define PL_VERSION "0.01"
+#define PL_VERSION "1.10"
 
 float g_fLastChatMsg[MAXPLAYERS + 1];
 
-Handle h_cvar_clantag;
-Handle h_cvar_chattag;
-
-bool b_cvar_clantag = false;
-bool b_cvar_chattag = false;
+Handle g_hClanTag = null,
+	   g_hChatTag = null;
 
 public Plugin myinfo =
 {
 	name = "Country Tag",
-	author = "Hejter",
+	author = "Hejter & Danyas",
 	description = "Add in chat and in scoreboard country tag.",
 	version = PL_VERSION,
 	url = "https://github.com/Heyter/CountryTag",
@@ -29,25 +23,28 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	CreateConVar("country_tag_version", PL_VERSION, "Country tag", FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	
+	AutoExecConfig_SetFile("plugin.country_tag");
+	AutoExecConfig_SetCreateFile(true);
+	
+	g_hClanTag = AutoExecConfig_CreateConVar("ClanTag", "1", "Clan tag enable = 1; disable = 0", _, true, 0.0, true, 1.0);
+	g_hChatTag = AutoExecConfig_CreateConVar("ChatTag", "1", "Chat tag enable = 1; disable = 0", _, true, 0.0, true, 1.0);
+	
+	AutoExecConfig_CleanFile();
+	AutoExecConfig_ExecuteFile();
+	
 	AddCommandListener(ChatSay, "say");
 	AddCommandListener(ChatSay, "say_team");
 	
 	HookEvent("player_spawn", PlySpawn, EventHookMode_Post);
 	
 	LoadTranslations("country_tag.phrases");
-	AutoExecConfig_SetFile("country_tag", "sourcemod/country_tag");
-	
-	AutoExecConfig_CreateConVar("country_tag_version", PL_VERSION, "Version", CVARS);
-	h_cvar_clantag = AutoExecConfig_CreateConVar("country_ClanTag", "1", "Enable/Disable clan tag", DEFAULT_FLAGS, true, 0.0, true, 1.0);
-	h_cvar_chattag = AutoExecConfig_CreateConVar("country_ChatTag", "1", "Enable/Disable chat tag", DEFAULT_FLAGS, true, 0.0, true, 1.0);
-	
-	HookEventsCvars();
-	AutoExecConfig_ExecuteFile();
 }
 
 public Action ChatSay(int client, const char[] command, int args)
 {
-	if (b_cvar_chattag)
+	if(GetConVarInt(g_hChatTag))
 	{
 		if (IsValidClient(client))
 		{
@@ -57,9 +54,7 @@ public Action ChatSay(int client, const char[] command, int args)
 				return Plugin_Handled;
 			}
 			
-			char ip[14];
-			char tag[3];
-			char text[1024];
+			char ip[14], tag[3], text[1024];
 			
 			text[0] = '\0';
 			int team = GetClientTeam(client);
@@ -99,11 +94,11 @@ public Action ChatSay(int client, const char[] command, int args)
 			
 			if (strcmp(command, "say") == 0)
 			{
-				if (team < 2) FormatEx(text, sizeof(text), "%t", "SPECTATOR_SAY_TEAM", tag, client, text);
+				if (team < 2) Format(text, sizeof(text), "%t", "SPECTATOR_SAY_TEAM", tag, client, text);
 				else
 				{
-					if (alive) FormatEx(text, sizeof(text), "%t", "ALIVE_CHAT", tag, client, text);
-					else FormatEx(text, sizeof(text),"%t", "DEAD", tag, client, text);
+					if (alive) Format(text, sizeof(text), "%t", "ALIVE_CHAT", tag, client, text);
+					else Format(text, sizeof(text),"%t", "DEAD", tag, client, text);
 				}
 				CPrintToChatAllEx(client, "%s", text);
 				return Plugin_Handled;
@@ -113,16 +108,16 @@ public Action ChatSay(int client, const char[] command, int args)
 			{
 				switch(team)
 				{
-					case 1:FormatEx(text, sizeof(text),"%t", "SPECTATOR_SAY", tag, client, text);
+					case 1:Format(text, sizeof(text),"%t", "SPECTATOR_SAY", tag, client, text);
 					case 2:
 					{
-						if (alive) FormatEx(text, sizeof(text), "%t", "TEAM_T", tag, client, text);
-						else FormatEx(text, sizeof(text), "%t", "DEAD_TEAM_T", tag, client, text);
+						if (alive) Format(text, sizeof(text), "%t", "TEAM_T", tag, client, text);
+						else Format(text, sizeof(text), "%t", "DEAD_TEAM_T", tag, client, text);
 					}
 					case 3:
 					{
-						if (alive) FormatEx(text, sizeof(text), "%t", "TEAM_CT", tag, client, text);
-						else FormatEx(text, sizeof(text), "%t", "%t", "DEAD_TEAM_CT", tag, client, text);
+						if (alive) Format(text, sizeof(text), "%t", "TEAM_CT", tag, client, text);
+						else Format(text, sizeof(text), "%t", "%t", "DEAD_TEAM_CT", tag, client, text);
 					}
 				}
 				
@@ -142,7 +137,7 @@ public Action ChatSay(int client, const char[] command, int args)
 
 public void PlySpawn(Event event, const char[] name, bool dontBroadcast)
 {
-	if (b_cvar_clantag)
+	if(GetConVarInt(g_hClanTag))
 	{
 		int client = GetClientOfUserId(event.GetInt("userid"));
 		{
@@ -167,9 +162,7 @@ public Action SetClanTag(Handle timer, any client)
 	if (!IsValidClient(client) || IsFakeClient(client))
 		return;
 
-	char ip[14]; 
-	char tag[3]; 
-	char info[40];
+	char ip[14], tag[3], info[40];
 	
 	GetClientIP(client, ip, sizeof(ip)); 
 	GeoipCode2(ip, tag);
@@ -189,21 +182,4 @@ stock bool IsValidClient(int client)
 		return true;
 	}
 	return false;
-}
-
-void UpdateState()
-{
-	b_cvar_clantag = GetConVarBool(h_cvar_clantag);
-	b_cvar_chattag = GetConVarBool(h_cvar_chattag);
-}
-
-void HookEventsCvars()
-{
-	HookConVarChange(h_cvar_clantag, Event_CvarChange);
-	HookConVarChange(h_cvar_chattag, Event_CvarChange);
-}
-
-public void Event_CvarChange(Handle cvar, const char[] oldValue, const char[] newValue)
-{
-	UpdateState();
 }
