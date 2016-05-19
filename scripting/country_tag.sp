@@ -5,7 +5,7 @@
 #include <cstrike>
 #include <autoexecconfig>
 #pragma newdecls required
-#define PL_VERSION "1.11"
+#define PL_VERSION "1.12"
 
 float g_fLastChatMsg[MAXPLAYERS + 1];
 
