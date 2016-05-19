@@ -48,11 +48,15 @@ public Action ChatSay(int client, const char[] command, int args)
 	{
 		if (IsValidClient(client))
 		{
-			if (BaseComm_IsClientGagged(client))
+			int flood = (GetEngineTime() - g_fLastChatMsg[client]) < 0.75;
+			int mute = BaseComm_IsClientGagged(client);
+			
+			if (mute || flood)
 			{
-				PrintToChat(client, "%t", "MUTE");
+				if (mute) PrintToChat(client, "%t", "MUTE");
 				return Plugin_Handled;
 			}
+			g_fLastChatMsg[client] = GetEngineTime();
 			
 			char ip[14], tag[3], text[512], textcolor[1024];
 			
@@ -64,18 +68,6 @@ public Action ChatSay(int client, const char[] command, int args)
 			if (!GeoipCode2(ip, tag))
 			{
 				tag = "??";
-			}
-			
-			/* Flood Protection */
-			if ((GetEngineTime()-g_fLastChatMsg[client]) < 0.75)
-			{
-				return Plugin_Handled;
-			}
-			g_fLastChatMsg[client] = GetEngineTime();
-			
-			if (client == 0 && args < 2)
-			{
-				return Plugin_Continue;
 			}
 			
 			GetCmdArgString(text, sizeof(text));
